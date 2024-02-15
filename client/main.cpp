@@ -1,7 +1,13 @@
 #include<iostream>
 #include <enet/enet.h>
+#include <string.h>
 
 using namespace std;
+
+void sendPacket(ENetPeer* peer,const char* msg){
+    ENetPacket* packet = enet_packet_create(msg,strlen(msg)+1,ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer,0,packet);
+}
 
 int main(int argc, char** argv) {
     if (enet_initialize() != 0) {
@@ -37,6 +43,7 @@ int main(int argc, char** argv) {
         puts("Connection to 127.0.0.1:7777 failed!\n");
         return EXIT_FAILURE;
     }
+    sendPacket(peer,"test!!");
 
     /* Game loop */
     while (enet_host_service(client, &event, 1000) > 0) {
