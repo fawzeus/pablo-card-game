@@ -1,6 +1,7 @@
 #include<iostream>
 #include <enet/enet.h>
-
+#include "../utils/utils.hpp"
+#include <vector>
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -22,7 +23,9 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    vector <ENetPeer*> ConnectedClients;
     // Game loop
+    unsigned char* msg;
     while (true) {
         if (enet_host_service(server, &event, 1000) > 0) {
             switch (event.type) {
@@ -30,6 +33,7 @@ int main(int argc, char** argv) {
                 printf("A new client connected from %x:%u\n",
                     event.peer->address.host,
                     event.peer->address.port);
+                ConnectedClients.push_back(event.peer);
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
                 printf("A packet of length %lu containing %s was received from %x:%u on channel %u.\n",
@@ -38,12 +42,15 @@ int main(int argc, char** argv) {
                     event.peer->address.host,
                     event.peer->address.port,
                     event.channelID);
+                    msg = event.packet->data;
+                broadcastMessage(ConnectedClients,msg);
                 enet_packet_destroy(event.packet);
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
                 printf("%x:%u Disconnected!\n",
                     event.peer->address.host,
                     event.peer->address.port);
+                removeClient(event.peer,ConnectedClients);
                 break;
             }
         }
