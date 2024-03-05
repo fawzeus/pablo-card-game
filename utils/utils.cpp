@@ -1,7 +1,4 @@
 #include "utils.hpp"
-#include<enet/enet.h>
-#include<vector>
-#include <string.h>
 using namespace std;
 
 void sendPacket(ENetPeer* peer,unsigned char* msg){
@@ -22,4 +19,19 @@ void removeClient(ENetPeer* disconnectedPeer,vector <ENetPeer*>& connectedClient
         index++;
     }
     connectedClients.erase(connectedClients.begin()+index);
+}
+
+string setID(){
+
+    const int len = 12;
+    static const char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    string result;
+    result.reserve(len);
+    for(int i=0;i<len;i++){
+        result+= alphanum[rand()%(sizeof(alphanum)-1)];
+    }
+    return result;
 }

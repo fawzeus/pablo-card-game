@@ -2,7 +2,20 @@
 #include <enet/enet.h>
 #include <string.h>
 #include "../utils/utils.hpp"
+#include <string> 
 using namespace std;
+
+
+class Person {
+    public:
+        string id;
+        string name;
+        Person(string name): name{name} {
+            id = setID();
+        }
+
+};
+
 
 int main(int argc, char** argv) {
     if (enet_initialize() != 0) {
