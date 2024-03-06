@@ -48,13 +48,11 @@ int main(int argc, char** argv) {
     }
     cout<<"please provide your username"<<endl;
     string username;
-    cin>>username;
+    getline(cin, username);
     Person p(username);
-    Message message(p,"hello world!");
-    //puts(message.serialize());
     //cout<<deserialize(message.serialize())<<endl;
     //testSendData(peer,message);
-    sendPacket(peer,(unsigned char*) message.serialize());
+    //sendPacket(peer,(unsigned char*) message.serialize());
 
     /* Game loop */
     bool connected=true;
@@ -75,13 +73,16 @@ int main(int argc, char** argv) {
                 return EXIT_SUCCESS;
             }
         }
-        cout<<"enter message to send"<<endl;
-        char msg[100];
-        fgets(msg,sizeof(msg),stdin);
-        if(strcmp(msg, "exit()") == 0)connected=false;
-        else sendPacket(peer,(unsigned char*)msg);
+        cout<<username<<":";
+        string msg;
+        getline(cin,msg);
+        cout<<"message = "<<msg<<endl;
+        Message message(p,msg);
+        if(msg== "exit()")connected=false;
+        else sendPacket(peer,(unsigned char*) message.serialize());
 
     }
+    cout<<"disconnected !!"<<endl;
     enet_peer_disconnect(peer, 0);
 
     while (enet_host_service(client, &event, 1000) > 0) {
@@ -94,6 +95,5 @@ int main(int argc, char** argv) {
             break;
         }
     }
-
     return EXIT_SUCCESS;
 }

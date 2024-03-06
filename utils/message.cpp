@@ -43,7 +43,7 @@ char* Message::serialize(){
     for(int i=0;i<user.id.size();i++){
         result[index++]=user.id[i];
     }
-    result[index]=0;
+    result[index]='\0';
     return result;
 }
 
