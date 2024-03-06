@@ -2,22 +2,17 @@
 #include <enet/enet.h>
 #include <string.h>
 #include "../utils/utils.hpp"
+#include "../utils/message.hpp"
+#include "../utils/person.hpp"
 #include <string> 
+#include <stdio.h>
+
 using namespace std;
 
 
-class Person {
-    public:
-        string id;
-        string name;
-        Person(string name): name{name} {
-            id = setID();
-        }
-
-};
-
-
 int main(int argc, char** argv) {
+
+    //cout<<message<<endl;
     if (enet_initialize() != 0) {
         fprintf(stderr, "An error occurred while initializing ENET!\n");
         return EXIT_FAILURE;
@@ -51,7 +46,15 @@ int main(int argc, char** argv) {
         puts("Connection to 127.0.0.1:7777 failed!\n");
         return EXIT_FAILURE;
     }
-    sendPacket(peer,(unsigned char*) "test!!");
+    cout<<"please provide your username"<<endl;
+    string username;
+    cin>>username;
+    Person p(username);
+    Message message(p,"hello world!");
+    //puts(message.serialize());
+    //cout<<deserialize(message.serialize())<<endl;
+    //testSendData(peer,message);
+    sendPacket(peer,(unsigned char*) message.serialize());
 
     /* Game loop */
     bool connected=true;
@@ -74,7 +77,7 @@ int main(int argc, char** argv) {
         }
         cout<<"enter message to send"<<endl;
         char msg[100];
-        cin>>msg;
+        fgets(msg,sizeof(msg),stdin);
         if(strcmp(msg, "exit()") == 0)connected=false;
         else sendPacket(peer,(unsigned char*)msg);
 

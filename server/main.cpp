@@ -2,6 +2,7 @@
 #include <enet/enet.h>
 #include "../utils/utils.hpp"
 #include <vector>
+#include "../utils/message.hpp"
 using namespace std;
 
 int main(int argc, char** argv) {

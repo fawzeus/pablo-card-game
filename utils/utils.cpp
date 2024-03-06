@@ -6,6 +6,11 @@ void sendPacket(ENetPeer* peer,unsigned char* msg){
     enet_peer_send(peer,0,packet);
 }
 
+void testSendData(ENetPeer* peer, Message message){
+    ENetPacket* packet = enet_packet_create(&message,sizeof(Message),ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer,0,packet);
+}
+
 void broadcastMessage(vector <ENetPeer*> connectedClients,unsigned char* msg){
     for(auto peer:connectedClients){
         sendPacket(peer,msg);
@@ -21,17 +26,4 @@ void removeClient(ENetPeer* disconnectedPeer,vector <ENetPeer*>& connectedClient
     connectedClients.erase(connectedClients.begin()+index);
 }
 
-string setID(){
 
-    const int len = 12;
-    static const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-    string result;
-    result.reserve(len);
-    for(int i=0;i<len;i++){
-        result+= alphanum[rand()%(sizeof(alphanum)-1)];
-    }
-    return result;
-}
