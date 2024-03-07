@@ -32,15 +32,15 @@ char* Message::serialize(){
     const int len = msg.size()+user.name.size()+user.id.size()+3;
     char* result = new char[len];
     int index=0;
-    for(int i=0;i<msg.size();i++){
+    for(long unsigned i=0;i<msg.size();i++){
         result[index++]=msg[i];
     }
     result[index++]=':';
-    for(int i=0;i<user.name.size();i++){
+    for(long unsigned i=0;i<user.name.size();i++){
         result[index++]=user.name[i];
     }
     result[index++]=':';
-    for(int i=0;i<user.id.size();i++){
+    for(long unsigned i=0;i<user.id.size();i++){
         result[index++]=user.id[i];
     }
     result[index]='\0';

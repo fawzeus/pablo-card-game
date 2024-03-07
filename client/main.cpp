@@ -57,13 +57,13 @@ int main(int argc, char** argv) {
 
     /* Game loop */
     bool connected=true;
-    thread receiving(receiving_thread,client,event ,&connected);
+    thread receiving([&](){receiving_thread(client,event ,&connected);});
     thread sending([&](){ sending_thread(peer, &connected, &p); });
+    thread pinging([&](){ping(peer,&connected);});
 
     receiving.join();
     sending.join();
-
-    cout<<"disconnected !!"<<endl;
+    pinging.join();
     enet_peer_disconnect(peer, 0);
 
     while (enet_host_service(client, &event, 1000) > 0) {
@@ -74,6 +74,8 @@ int main(int argc, char** argv) {
         case ENET_EVENT_TYPE_DISCONNECT:
             puts("Disconnect succeeded!");
             break;
+        default:
+            continue;
         }
     }
     return EXIT_SUCCESS;

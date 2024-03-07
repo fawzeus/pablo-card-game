@@ -10,14 +10,14 @@ Person::Person(){
 }
 
 Person::Person(const Person &other){
-    name=other.name;
     id = other.id;
+    name=other.name;
 }
-Person::Person(string name, string id):name(name),id(id){}
+Person::Person(string name, string id):id(id),name(name){}
 Person& Person::operator=(const Person &other){
     if (this != &other){
-        name=other.name;
         id=other.id;
+        name=other.name;
     }
     return *this;
 }

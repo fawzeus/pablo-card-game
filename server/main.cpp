@@ -37,6 +37,10 @@ int main(int argc, char** argv) {
                 ConnectedClients.push_back(event.peer);
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
+                /*puts("here");
+                puts((const char *)event.packet->data);
+                puts("here");*/
+                if (strcmp((const char*) event.packet->data,"__ping_server")==0) continue;
                 printf("A packet of length %lu containing %s was received from %x:%u on channel %u.\n",
                     event.packet->dataLength,
                     event.packet->data,
@@ -44,7 +48,7 @@ int main(int argc, char** argv) {
                     event.peer->address.port,
                     event.channelID);
                     msg = event.packet->data;
-                broadcastMessage(ConnectedClients,msg);
+                broadcastMessage(event.peer,ConnectedClients,msg);
                 enet_packet_destroy(event.packet);
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
@@ -53,6 +57,8 @@ int main(int argc, char** argv) {
                     event.peer->address.port);
                 removeClient(event.peer,ConnectedClients);
                 break;
+            default:
+                continue;
             }
         }
     }

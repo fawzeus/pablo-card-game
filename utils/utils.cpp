@@ -11,9 +11,11 @@ void testSendData(ENetPeer* peer, Message message){
     enet_peer_send(peer,0,packet);
 }
 
-void broadcastMessage(vector <ENetPeer*> connectedClients,unsigned char* msg){
-    for(auto peer:connectedClients){
-        sendPacket(peer,msg);
+void broadcastMessage(ENetPeer* peer,vector <ENetPeer*> connectedClients,unsigned char* msg){
+    for(auto current:connectedClients){
+        if(current->address.port != peer->address.port){
+        sendPacket(current,msg);
+        }
     }
 }
 
@@ -31,7 +33,7 @@ void sending_thread(ENetPeer* peer, bool* connected, Person* p){
         //cout<<p->name<<":";
         string msg;
         getline(cin,msg);
-        cout<<"message = "<<msg<<endl;
+        //cout<<"message = "<<msg<<endl;
         Message message(*p,msg);
         if(msg== "exit()")*connected=false;
         else sendPacket(peer,(unsigned char*) message.serialize());
@@ -39,22 +41,43 @@ void sending_thread(ENetPeer* peer, bool* connected, Person* p){
 }
 
 void receiving_thread(ENetHost* client,ENetEvent event ,bool* connected){
+    Message msg;
     while (*connected){
         while (enet_host_service(client, &event, 1000) > 0) {
             switch (event.type) {
             case ENET_EVENT_TYPE_RECEIVE:
-                printf("A packet of length %lu containing %s was received from %x:%u on channel %u.\n",
+                msg = deserialize((char*)event.packet->data);
+                cout<<msg.user.name<<":"<<msg.msg<<endl;
+                /*printf("A packet of length %lu containing %s was received from %x:%u on channel %u.\n",
                     event.packet->dataLength,
                     event.packet->data,
                     event.peer->address.host,
                     event.peer->address.port,
-                    event.channelID);
+                    event.channelID);*/
                 enet_packet_destroy(event.packet);
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
                 puts("Disconnect succeeded!");
                 exit(EXIT_SUCCESS);
+                break;
+            default:
+                continue;
             }
         }
+    }
+}
+
+void ping(ENetPeer* peer, bool* connected) {
+    unsigned char ping_msg[14] = "__ping_server";
+    auto last_ping_time = std::chrono::steady_clock::now();
+
+    while (*connected) {
+        auto now = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::seconds>(now - last_ping_time).count() >= 10) {
+            sendPacket(peer, ping_msg);
+            last_ping_time = now;
+        }
+        // Add some sleep to avoid busy waiting
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
