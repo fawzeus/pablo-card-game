@@ -6,6 +6,7 @@
 #include "../utils/person.hpp"
 #include <string> 
 #include <stdio.h>
+#include <thread>
 
 using namespace std;
 
@@ -56,32 +57,12 @@ int main(int argc, char** argv) {
 
     /* Game loop */
     bool connected=true;
-    while (connected){
-        while (enet_host_service(client, &event, 1000) > 0) {
-            switch (event.type) {
-            case ENET_EVENT_TYPE_RECEIVE:
-                printf("A packet of length %lu containing %s was received from %x:%u on channel %u.\n",
-                    event.packet->dataLength,
-                    event.packet->data,
-                    event.peer->address.host,
-                    event.peer->address.port,
-                    event.channelID);
-                enet_packet_destroy(event.packet);
-                break;
-            case ENET_EVENT_TYPE_DISCONNECT:
-                puts("Disconnect succeeded!");
-                return EXIT_SUCCESS;
-            }
-        }
-        cout<<username<<":";
-        string msg;
-        getline(cin,msg);
-        cout<<"message = "<<msg<<endl;
-        Message message(p,msg);
-        if(msg== "exit()")connected=false;
-        else sendPacket(peer,(unsigned char*) message.serialize());
+    thread receiving(receiving_thread,client,event ,&connected);
+    thread sending([&](){ sending_thread(peer, &connected, &p); });
 
-    }
+    receiving.join();
+    sending.join();
+
     cout<<"disconnected !!"<<endl;
     enet_peer_disconnect(peer, 0);
 
