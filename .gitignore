@@ -1,3 +1,5 @@
 .vscode
 server/build
 client/build
+test
+test-threads.cpp
